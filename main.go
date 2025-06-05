@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net"
-	"os"
 )
 
 func main() {
@@ -12,30 +10,27 @@ func main() {
 
 	l, err := net.Listen("tcp", ":6379")
 	if err != nil {
-		fmt.Println("Error starting server:", err)
+		fmt.Println(err)
 		return
 	}
 
 	conn, err := l.Accept()
 	if err != nil {
-		fmt.Println("Error accepting connection:", err)
+		fmt.Println(err)
 		return
 	}
 
 	defer conn.Close()
 
 	for {
-		buf := make([]byte, 1024)
-
-		_, err := conn.Read(buf)
+		resp := NewResp(conn)
+		value, err := resp.Read()
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println("Error reading from connection:", err.Error())
-			os.Exit(1)
-
+			fmt.Println(err)
+			return
 		}
+
+		fmt.Println(value)
 
 		conn.Write([]byte("+OK\r\n"))
 	}

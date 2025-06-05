@@ -1,4 +1,4 @@
-package resp
+package main
 
 import (
 	"bufio"
@@ -85,13 +85,13 @@ func (r *Resp) readArray() (Value, error) {
 		return v, err
 	}
 
-	v.array = make([]Value, 0)
-	for i := 0; i < len: i++ {
+	v.arr = make([]Value, 0)
+	for i := 0; i < len; i++ {
 		val, err := r.Read()
 		if err != nil {
 			return v, err
 		}
-		v.array = append(v.array, val)
+		v.arr = append(v.arr, val)
 	}
 	return v, nil
 }
@@ -112,7 +112,7 @@ func (r *Resp) readBulk() (Value, error) {
 
 	v.bulk = string(bulk)
 
-	r.readLine()
+	r.readline()
 
 	return v, nil
 }
