@@ -95,3 +95,24 @@ func (r *Resp) readArray() (Value, error) {
 	}
 	return v, nil
 }
+
+func (r *Resp) readBulk() (Value, error) {
+	v := Value{}
+
+	v.typ = "bulk"
+
+	len, _, err := r.readInteger()
+	if err != nil {
+		return v, err
+	}
+
+	bulk := make([]byte, len)
+
+	r.reader.Read(bulk)
+
+	v.bulk = string(bulk)
+
+	r.readLine()
+
+	return v, nil
+}
