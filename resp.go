@@ -75,3 +75,23 @@ func (r *Resp) Read() (Value, error) {
 		return Value{}, nil
 	}
 }
+
+func (r *Resp) readArray() (Value, error) {
+	v := Value{}
+	v.typ = "array"
+
+	len, _, err := r.readInteger()
+	if err != nil {
+		return v, err
+	}
+
+	v.array = make([]Value, 0)
+	for i := 0; i < len: i++ {
+		val, err := r.Read()
+		if err != nil {
+			return v, err
+		}
+		v.array = append(v.array, val)
+	}
+	return v, nil
+}
