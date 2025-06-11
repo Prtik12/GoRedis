@@ -16,11 +16,11 @@ const (
 )
 
 type Value struct {
-	typ  string
-	str  string
-	num  int
-	bulk string
-	arr  []Value
+	typ   string
+	str   string
+	num   int
+	bulk  string
+	array []Value
 }
 
 type Resp struct {
@@ -85,13 +85,13 @@ func (r *Resp) readArray() (Value, error) {
 		return v, err
 	}
 
-	v.arr = make([]Value, 0)
+	v.array = make([]Value, 0)
 	for i := 0; i < len; i++ {
 		val, err := r.Read()
 		if err != nil {
 			return v, err
 		}
-		v.arr = append(v.arr, val)
+		v.array = append(v.array, val)
 	}
 	return v, nil
 }
@@ -115,4 +115,68 @@ func (r *Resp) readBulk() (Value, error) {
 	r.readline()
 
 	return v, nil
+}
+
+func (v Value) Marshal() []byte {
+	switch v.typ {
+	case "array":
+		return v.marshalArray()
+	case "bulk":
+		return v.marshalBulk()
+	case "string":
+		return v.marshalString()
+	case "null":
+		return v.marshallNull()
+	case "error":
+		return v.marshallError()
+	default:
+		return []byte{}
+	}
+}
+
+func (v Value) marshalString() []byte {
+	var bytes []byte
+	bytes = append(bytes, STRING)
+	bytes = append(bytes, v.str...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
+func (v Value) marshalBulk() []byte {
+	var bytes []byte
+	bytes = append(bytes, BULK)
+	bytes = append(bytes, strconv.Itoa(len(v.bulk))...)
+	bytes = append(bytes, '\r', '\n')
+	bytes = append(bytes, v.bulk...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
+func (v Value) marshalArray() []byte {
+	len := len(v.array)
+	var bytes []byte
+	bytes = append(bytes, ARRAY)
+	bytes = append(bytes, strconv.Itoa(len)...)
+	bytes = append(bytes, '\r', '\n')
+
+	for i := 0; i < len; i++ {
+		bytes = append(bytes, v.array[i].Marshal()...)
+	}
+
+	return bytes
+}
+
+func (v Value) marshallError() []byte {
+	var bytes []byte
+	bytes = append(bytes, ERROR)
+	bytes = append(bytes, v.str...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
+func (v Value) marshallNull() []byte {
+	return []byte("$-1\r\n")
 }
