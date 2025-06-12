@@ -1,6 +1,6 @@
 # GoRedis
 
-A minimal Redis-compatible server built in Go that supports basic RESP (Redis Serialization Protocol) parsing and a few core commands.
+A minimal Redis compatible server built in Go that supports basic RESP (Redis Serialization Protocol) parsing and a few core commands.
 
 <img width="1920" alt="Screenshot 2025-06-12 at 7 09 47 AM" src="https://github.com/user-attachments/assets/b6c90b0e-840d-4f86-b4a0-ff4bd8bfe5b9" />
 
