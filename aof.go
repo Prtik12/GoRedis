@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"sync"
-	"time"
 )
 
 type Aof struct {
@@ -16,29 +15,15 @@ type Aof struct {
 }
 
 func NewAof(path string) (*Aof, error) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 	if err != nil {
 		return nil, err
 	}
 
-	aof := &Aof{
+	return &Aof{
 		file: f,
 		rd:   bufio.NewReader(f),
-	}
-
-	go func() {
-		for {
-			aof.mu.Lock()
-
-			aof.file.Sync()
-
-			aof.mu.Unlock()
-
-			time.Sleep(time.Second)
-		}
-	}()
-
-	return aof, nil
+	}, nil
 }
 
 func (aof *Aof) Close() error {
@@ -57,14 +42,17 @@ func (aof *Aof) Write(value Value) error {
 		return err
 	}
 
-	return nil
+	return aof.file.Sync()
 }
 
 func (aof *Aof) Read(fn func(value Value)) error {
 	aof.mu.Lock()
 	defer aof.mu.Unlock()
 
-	aof.file.Seek(0, io.SeekStart)
+	_, err := aof.file.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
 
 	reader := NewResp(aof.file)
 
@@ -74,7 +62,6 @@ func (aof *Aof) Read(fn func(value Value)) error {
 			if errors.Is(err, io.EOF) {
 				break
 			}
-
 			return err
 		}
 
