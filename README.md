@@ -9,8 +9,8 @@ A minimal Redis compatible server built in Go that supports basic RESP (Redis Se
 ## Features
 
 - RESP (Redis Serialization Protocol) parser implemented from scratch.
-- Handles core Redis commands like `PING`, `ECHO`, `SET`, `GET`, `HSET`, `HGET`, and `HGETALL`.
-- Uses Go standard library only — no external dependencies.
+- Handles core Redis commands like `PING`, `SET`, `GET`, `HSET`, `HGET`, and `HGETALL`.
+- Uses Go standard library only. No external dependencies.
 - Supports writing persistent data using Append-Only File (AOF) format.
 
 ---
